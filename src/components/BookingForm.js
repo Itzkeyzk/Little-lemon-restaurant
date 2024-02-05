@@ -1,32 +1,71 @@
-import React, { useState } from 'react';
+// BookingForm.js
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { submitAPI, fetchAPI } from './api'; // Make sure to import fetchAPI
 
 const BookingForm = () => {
   // State variables for form fields
   const [date, setDate] = useState('');
-  const [time, setTime] = useState('17:00'); // Default value for time
+  const [time, setTime] = useState('17:00');
   const [numberOfGuests, setNumberOfGuests] = useState(1);
-  const [occasion, setOccasion] = useState('Birthday'); // Default value for occasion
+  const [occasion, setOccasion] = useState('Birthday');
+  const [availableTimes, setAvailableTimes] = useState([]);
 
-  // State variable for available times
-  const [availableTimes] = useState([
-    '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'
-  ]);
+  // Hook for navigation
+  const navigate = useNavigate();
 
   // Function to handle form submission
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle form submission, e.g., send data to server
-    console.log('Form submitted with data:', { date, time, numberOfGuests, occasion });
+  const submitForm = async (formData) => {
+    try {
+      const success = await submitAPI(formData);
+      if (success) {
+        navigate('/confirmed');
+      } else {
+        // Handle submission failure if necessary
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Handle submission failure if necessary
+    }
+  };
+
+  // Fetch available times when component mounts
+  useEffect(() => {
+    initializeTimes();
+  }, []);
+
+  // Function to initialize available times
+  const initializeTimes = async () => {
+    const today = new Date(); // Get current date as a Date object
+    try {
+      const times = await fetchAPI(today);
+      setAvailableTimes(times);
+    } catch (error) {
+      console.error('Error fetching available times:', error);
+    }
+  };
+
+  // Function to update available times when date changes
+  const handleDateChange = async (e) => {
+    const newDate = e.target.value;
+    setDate(newDate);
+    try {
+      const times = await fetchAPI(newDate);
+      setAvailableTimes(times);
+    } catch (error) {
+      console.error('Error fetching available times:', error);
+    }
   };
 
   return (
-    <form style={{ display: 'grid', maxWidth: '200px', gap: '20px' }} onSubmit={handleSubmit}>
+    <form style={{ display: 'grid', maxWidth: '200px', gap: '20px' }} onSubmit={(e) => { e.preventDefault(); submitForm({ date, time, numberOfGuests, occasion }); }}>
       <label htmlFor="res-date">Choose date</label>
       <input
         type="date"
         id="res-date"
         value={date}
-        onChange={(e) => setDate(e.target.value)}
+        onChange={handleDateChange}
         required
       />
 
