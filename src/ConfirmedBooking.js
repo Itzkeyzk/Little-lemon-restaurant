@@ -1,10 +1,10 @@
 import React from 'react';
-
+import './App.css'
 const ConfirmedBooking = () => {
   return (
-    <div>
-      <h2>Booking Confirmed!</h2>
-      <p>Your booking has been successfully submitted.</p>
+    <div className='container_b'>
+      <h2 className='confirm'>Booking Confirmed!</h2>
+      <p className='con'>Your booking has been successfully submitted.</p>
     </div>
   );
 };
